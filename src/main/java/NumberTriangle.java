@@ -1,5 +1,6 @@
 import java.io.*;
-
+import java.util.ArrayList;
+import java.util.List;
 /**
  * This is the provided NumberTriangle class to be used in this coding task.
  *
@@ -88,8 +89,12 @@ public class NumberTriangle {
      *
      */
     public int retrieve(String path) {
-        // TODO implement this method
-        return -1;
+        NumberTriangle curr = this;
+        for (int i = 0; i < path.length(); i++) {
+            char step = path.charAt(i);
+            curr = (step == 'L') ? curr.left : curr.right;
+        }
+        return curr.root;
     }
 
     /** Read in the NumberTriangle structure from a file.
@@ -107,24 +112,28 @@ public class NumberTriangle {
         // open the file and get a BufferedReader object whose methods
         // are more convenient to work with when reading the file contents.
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
+        if (inputStream == null) {
+            throw new FileNotFoundException("Resource not found on classpath: " + fname);
+        }
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
-
-        // TODO define any variables that you want to use to store things
 
         // will need to return the top of the NumberTriangle,
         // so might want a variable for that.
         NumberTriangle top = null;
 
+        List<int[]> rows = new ArrayList<>();
         String line = br.readLine();
         while (line != null) {
-
-            // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
-
-            // TODO process the line
-
-            //read the next line
+            String trimmed = line.trim();
+            if (!trimmed.isEmpty()) {
+                String[] parts = trimmed.split("\\s+");
+                int[] vals = new int[parts.length];
+                for (int i = 0; i < parts.length; i++) {
+                    vals[i] = Integer.parseInt(parts[i]);
+                }
+                rows.add(vals);
+            }
             line = br.readLine();
         }
         br.close();

@@ -92,7 +92,7 @@ public class NumberTriangle {
         NumberTriangle curr = this;
         for (int i = 0; i < path.length(); i++) {
             char step = path.charAt(i);
-            curr = (step == 'l') ? curr.right : curr.left;
+            curr = (step == 'l') ? curr.left : curr.right;
         }
         return curr.root;
     }
@@ -142,8 +142,8 @@ public class NumberTriangle {
             for (int c = 0; c < vals.length; c++) {
                 NumberTriangle node = new NumberTriangle(vals[c]);
                 if (below != null) {
-                    node.setLeft(below.get(c));
-                    node.setRight(below.get(c + 1));
+                    node.setLeft(below.get(c + 1));
+                    node.setRight(below.get(c));
                 }
                 currRow.add(node);
             }

@@ -137,7 +137,23 @@ public class NumberTriangle {
             line = br.readLine();
         }
         br.close();
-        return top;
+
+        List<NumberTriangle> below = null;
+        for (int r = rows.size() - 1; r >= 0; r--) {
+            int[] vals = rows.get(r);
+            List<NumberTriangle> currRow = new ArrayList<>(vals.length);
+            for (int c = 0; c < vals.length; c++) {
+                NumberTriangle node = new NumberTriangle(vals[c]);
+                if (below != null) {
+                    node.setLeft(below.get(c));
+                    node.setRight(below.get(c + 1));
+                }
+                currRow.add(node);
+            }
+            below = currRow;
+        }
+
+        return (below == null) ? null : below.get(0);
     }
 
     public static void main(String[] args) throws IOException {

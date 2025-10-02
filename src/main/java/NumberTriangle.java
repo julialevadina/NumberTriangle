@@ -92,7 +92,13 @@ public class NumberTriangle {
         NumberTriangle curr = this;
         for (int i = 0; i < path.length(); i++) {
             char step = path.charAt(i);
-            curr = (step == 'l') ? curr.left : curr.right;
+            if (step == 'l' || step == 'L') {
+                curr = curr.left;
+            } else if (step == 'r' || step == 'R') {
+                curr = curr.right;
+            } else {
+                throw new IllegalArgumentException("Invalid path character: " + step);
+            }
         }
         return curr.root;
     }
@@ -109,15 +115,11 @@ public class NumberTriangle {
      * @throws IOException may naturally occur if an issue reading the file occurs
      */
     public static NumberTriangle loadTriangle(String fname) throws IOException {
-        // open the file and get a BufferedReader object whose methods
-        // are more convenient to work with when reading the file contents.
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
         if (inputStream == null) {
             throw new FileNotFoundException("Resource not found on classpath: " + fname);
         }
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-
-        NumberTriangle top = null;
 
         List<int[]> rows = new ArrayList<>();
         String line = br.readLine();
@@ -135,22 +137,38 @@ public class NumberTriangle {
         }
         br.close();
 
-        List<NumberTriangle> below = null;
-        for (int r = rows.size() - 1; r >= 0; r--) {
+        if (rows.isEmpty()) {
+            throw new IOException("Empty triangle input: " + fname);
+        }
+
+        int[] first = rows.get(0);
+        if (first.length != 1) {
+            throw new IOException("Top row must contain exactly one number.");
+        }
+        NumberTriangle top = new NumberTriangle(first[0]);
+
+        List<NumberTriangle> prevRow = new ArrayList<>();
+        prevRow.add(top);
+
+        for (int r = 1; r < rows.size(); r++) {
             int[] vals = rows.get(r);
             List<NumberTriangle> currRow = new ArrayList<>(vals.length);
-            for (int c = 0; c < vals.length; c++) {
-                NumberTriangle node = new NumberTriangle(vals[c]);
-                if (below != null) {
-                    node.setLeft(below.get(c + 1));
-                    node.setRight(below.get(c));
+            for (int i = 0; i < vals.length; i++) {
+                NumberTriangle node = new NumberTriangle(vals[i]);
+                // attach as left child of parent i (if exists)
+                if (i < prevRow.size()) {
+                    prevRow.get(i).setLeft(node);
+                }
+                // attach as right child of parent i-1 (if exists)
+                if (i - 1 >= 0) {
+                    prevRow.get(i - 1).setRight(node);
                 }
                 currRow.add(node);
             }
-            below = currRow;
+            prevRow = currRow;
         }
 
-        return (below == null) ? null : below.get(0);
+        return top;
     }
 
     public static void main(String[] args) throws IOException {
